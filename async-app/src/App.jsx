@@ -49,19 +49,24 @@
 
 // export default App;
 
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 
 const App = () => {
-  const [post, setPost] = useState(null);
-
+  const [todos, setTodos] = useState(null);
+  const [todo, setTodo] = useState({
+    title: "",
+  });
+  const [targetId, setTargetId] = useState("");
+  const [editTodo, setEditTodo] = useState({
+    title: "",
+  });
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const response = await fetch(
-          "https://jsonplaceholder.typicode.com/posts/1"
-        );
-        const data = await response.json();
-        setPost(data);
+        const { data } = await axios.get("http://localhost:4000/todos");
+        // const data = await response.json();
+        setTodos(data);
       } catch (error) {
         console.error("Error =>", error);
       }
@@ -69,11 +74,84 @@ const App = () => {
     fetchPost();
   }, []);
 
-  console.log("post", post);
+  console.log("todos", todos);
+
+  const onSubmitHandler = async (todo) => {
+    const { data } = await axios.post("http://localhost:4000/todos", todo);
+
+    setTodos([...todos, data]);
+  };
+
+  const onDeleteHandler = async (id) => {
+    await axios.delete("http://localhost:4000/todos/" + id);
+
+    setTodos(todos.filter((todo) => todo.id !== id));
+  };
+
+  const onEditHandler = async (targetId, editTodo) => {
+    await axios.patch("http://localhost:4000/todos/" + targetId, editTodo);
+
+    const newTodos = todos.map((todo) => {
+      if (todo.id === targetId) {
+        return {
+          ...todo,
+          title: editTodo.title,
+        };
+      }
+
+      return todo;
+    });
+
+    setTodos(newTodos);
+  };
   return (
     <div>
-      <h3>async / await 연습</h3>
-      {post ? <div>{post.title}</div> : <div>loading...</div>}
+      <h3>axios 연습</h3>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSubmitHandler(todo);
+        }}
+      >
+        <div>
+          <input
+            type="text"
+            placeholder="수정하고 싶은 Todo Id 입력"
+            onChange={(e) => {
+              setTargetId(e.target.value);
+            }}
+          />
+          <input
+            type="text"
+            placeholder="수정할 값 입력"
+            onChange={(e) => {
+              setEditTodo({ ...editTodo, title: e.target.value });
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => onEditHandler(targetId, editTodo)}
+          >
+            수정
+          </button>
+        </div>
+
+        <input
+          type="text"
+          onChange={(e) => {
+            setTodo({ ...todo, title: e.target.value });
+          }}
+        />
+        <button type="submit">추가하기</button>
+      </form>
+      {todos?.map((todo) => {
+        return (
+          <div key={todo.id}>
+            <span>{todo.title}</span>
+            <button onClick={() => onDeleteHandler(todo.id)}>삭제</button>
+          </div>
+        );
+      })}
     </div>
   );
 };
