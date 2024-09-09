@@ -1,0 +1,24 @@
+{
+  "todos": [
+    {
+      "id": 1,
+      "title": "리액트 공부하기",
+      "isDone": true
+    },
+    {
+      "id": "bb09",
+      "title": "ㅋㅋ",
+      "isDone": false
+    },
+    {
+      "id": "f569",
+      "title": "ㅋㅋ",
+      "isDone": false
+    },
+    {
+      "id": "f96c",
+      "title": "ㄴㅁㄴ",
+      "isDone": false
+    }
+  ]
+}
